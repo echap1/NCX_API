@@ -1,0 +1,198 @@
+import uuid
+from collections import defaultdict
+
+import uvicorn
+
+import gnupg
+
+gpg = gnupg.GPG()
+
+gpg.trust_keys(gpg.import_keys("""-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: Keybase OpenPGP v2.1.15
+Comment: https://keybase.io/crypto
+
+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
+iGbh
+=XIQh
+-----END PGP PUBLIC KEY BLOCK-----""").fingerprints, "TRUST_ULTIMATE")
+
+gpg.trust_keys(gpg.import_keys("""-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: Keybase OpenPGP v2.1.15
+Comment: https://keybase.io/crypto
+
+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
+++29
+=DA/1
+-----END PGP PUBLIC KEY BLOCK-----""").fingerprints, "TRUST_ULTIMATE")
+
+gpg.trust_keys(gpg.import_keys("""-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: Keybase OpenPGP v2.1.15
+Comment: https://keybase.io/crypto
+
+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
+f5fl
+=V83O
+-----END PGP PUBLIC KEY BLOCK-----""").fingerprints, "TRUST_ULTIMATE")
+
+l = gpg.list_keys()
+
+keys = {
+    "goose": l[0]['keyid'],
+    "mouse": l[1]['keyid'],
+    "firefly": l[2]['keyid'],
+}
+
+from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
+from pydantic import BaseModel, UUID4
+from starlette.responses import PlainTextResponse
+
+app = FastAPI()
+
+
+messages = dict()
+
+
+class NewMsg(BaseModel):
+    callsign: str
+    message: str
+
+
+class MsgResponse(BaseModel):
+    messageId: UUID4
+    encryptedMessage: str
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return PlainTextResponse(str(exc), status_code=400)
+
+
+@app.post("/message")
+async def post_msg(req: NewMsg):
+    try:
+        m = gpg.encrypt(req.message.encode(), keys[req.callsign])
+    except:
+        raise HTTPException(status_code=404)
+    m_id = uuid.uuid4()
+    messages[m_id] = m
+    return MsgResponse(messageId=m_id, encryptedMessage=m.data)
+
+
+@app.get("/message")
+async def get_msg(messageId: UUID4):
+    if messageId in messages.keys():
+        return MsgResponse(messageId=messageId, encryptedMessage=messages[messageId])
+    raise HTTPException(status_code=404)
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, log_level="info")
